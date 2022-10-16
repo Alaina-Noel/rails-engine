@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe "Items API" do
   it "sends a list of items" do
-    create_list(:item, 10)
-
+    merchant = create(:merchant)
+    items = create_list(:item, 10)
     get '/api/v1/items'
 
     expect(response).to be_successful
