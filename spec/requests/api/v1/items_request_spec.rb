@@ -25,4 +25,31 @@ describe "Items API" do
       expect(item_data[:attributes][:unit_price]).to be_a(Float)
     end
   end
+
+    it "can get one item by its id" do 
+      id = create(:item).id
+  
+      get "/api/v1/items/#{id}"
+  
+      item_data = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(response).to be_successful
+      expect(item_data[:data]).to have_key(:id)
+      expect(item_data[:data][:id]).to eq(id.to_s)
+    
+      expect(item_data[:data]).to have_key(:type)
+      expect(item_data[:data][:type]).to eq("item")
+    
+      expect(item_data[:data]).to have_key(:attributes)
+      expect(item_data[:data][:attributes][:name]).to be_a(String)
+    end
+
+  #   describe 'sad path' do
+  #     it "can get one item by its id" do   
+  #       get "/api/v1/items/9999111"
+    
+  #       item_data = JSON.parse(response.body, symbolize_names: true)
+  #       expect(response.status).to eq(404)
+  #     end
+  # end
 end

@@ -24,4 +24,29 @@ describe "Merchants API" do
       expect(merchant_data[:attributes][:name]).to be_a(String)
     end
   end
+
+    it "can get one merchant by its id" do 
+      id = create(:merchant).id
+      get "/api/v1/merchants/#{id}"
+      merchant_data = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(response).to be_successful
+      expect(merchant_data[:data]).to have_key(:id)
+      expect(merchant_data[:data][:id]).to eq(id.to_s)
+    
+      expect(merchant_data[:data]).to have_key(:type)
+      expect(merchant_data[:data][:type]).to eq("merchant")
+    
+      expect(merchant_data[:data]).to have_key(:attributes)
+      expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+    end
+
+  #   describe 'sad path' do
+  #     it "can give an error message if you don't put in the specific id" do 
+  #       get "/api/v1/items/99999"
+    
+  #       merchant_data = JSON.parse(response.body, symbolize_names: true)
+  #       expect(response.status).to eq(404)
+  #     end
+  # end
 end
