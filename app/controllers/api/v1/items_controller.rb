@@ -12,7 +12,7 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    render json: Item.update(params[:id], item_params) #if you don't include params[:id] it will find each every book
+    render json: Item.update(params[:id], item_params) #if you don't include params[:id] it will find each every item
   end
 
   def destroy
@@ -21,6 +21,6 @@ class Api::V1::ItemsController < ApplicationController
 
   private
   def item_params
-    params.require(:item).permit(:name, :description, :unit_price)
+    params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
   end
 end

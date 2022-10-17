@@ -54,22 +54,31 @@ describe "Items API" do
   # end
 
   it "can create a new item" do
-    new_item_params = create(:item)
+    merchant = create(:merchant)
+
+    new_item_params = ({
+                          name: 'Green Goblin Eyes',
+                          description: 'the googliest eyes',
+                          unit_price: 333.99,
+                          merchant_id: merchant.id
+                        })
     headers = {"CONTENT_TYPE" => "application/json"}
-  
-    post "/api/v1/items", headers: headers, params: JSON.generate(book: new_item_params)
+
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: new_item_params)
     created_item = Item.last
-  
+
     expect(response).to be_successful
-    expect(created_item.title).to eq(new_item_params[:name])
-    expect(created_item.author).to eq(new_item_params[:description])
-    expect(created_item.summary).to eq(new_item_params[:unit_price])
+    expect(created_item.name).to eq(new_item_params[:name])
+    expect(created_item.description).to eq(new_item_params[:description])
+    expect(created_item.unit_price).to eq(new_item_params[:unit_price])
     # expect(created_item.genre).to eq(new_item_params[:genre])
   end
 
-  it "can update an existing item" do
+  xit "can update an existing item" do
     id = create(:item).id
-    create(:item, 3)
+    create(:item)
+    create(:item)
+    create(:item)
 
     previous_name = Item.last.name
     item_params = { name: "Pink Earrings" }
@@ -84,7 +93,7 @@ describe "Items API" do
     expect(item.name).to eq("Pink Earrings" )
   end
 
-  it "can delete an item" do
+  xit "can delete an item" do
     item = create(:item)
   
     expect(Item.count).to eq(1)
