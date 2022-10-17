@@ -52,4 +52,60 @@ describe "Items API" do
   #       expect(response.status).to eq(404)
   #     end
   # end
+
+  it "can create a new item" do
+    merchant = create(:merchant)
+
+    new_item_params = ({
+                          name: 'Green Goblin Eyes',
+                          description: 'the googliest eyes',
+                          unit_price: 333.99,
+                          merchant_id: merchant.id
+                        })
+    headers = {"Content-Type" => "application/json"}
+
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: new_item_params)
+    created_item = Item.last
+
+    expect(response).to be_successful
+    # expect(response.status).to eq(201) // TODO check on this
+
+    expect(created_item.name).to eq(new_item_params[:name])
+    expect(created_item.description).to eq(new_item_params[:description])
+    expect(created_item.unit_price).to eq(new_item_params[:unit_price])
+#     // TODO: sad path where attribute types are not correct
+# // TODO: edge case where all attributes are missing
+  end
+
+  it "can update an existing item" do
+    id = create(:item).id
+    create(:item)
+    create(:item)
+    create(:item)
+
+    previous_name = Item.last.name
+    item_params = { name: "Pink Earrings" }
+    headers = {"CONTENT_TYPE" => "application/json"}
+    
+    # We include this header to make sure that these params are passed as JSON rather than as plain text
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+    item = Item.find_by(id: id)
+  
+    expect(response).to be_successful
+    expect(item.name).to_not eq(previous_name)
+    expect(item.name).to eq("Pink Earrings" )
+  end
+
+  it "can delete an item" do
+    item = create(:item)
+  
+    expect(Item.count).to eq(1)
+  
+    delete "/api/v1/items/#{item.id}"
+  
+    expect(response).to be_successful
+    expect(Item.count).to eq(0)
+    expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
 end
