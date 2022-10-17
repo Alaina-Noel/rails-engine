@@ -41,13 +41,12 @@ describe "Merchants API" do
       expect(merchant_data[:data][:attributes][:name]).to be_a(String)
     end
 
-    describe 'sad path' do
-      it "can give an error message if you don't put in the specific id" do 
+  #   describe 'sad path' do
+  #     it "can give an error message if you don't put in the specific id" do 
+  #       get "/api/v1/items/99999"
     
-        get "/api/v1/items/#{id}"
-    
-        merchant_data = JSON.parse(response.body, symbolize_names: true)
-        require 'pry' ; binding.pry
-      end
-  end
+  #       merchant_data = JSON.parse(response.body, symbolize_names: true)
+  #       expect(response.status).to eq(404)
+  #     end
+  # end
 end
