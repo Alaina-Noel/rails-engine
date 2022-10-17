@@ -44,15 +44,6 @@ describe "Items API" do
       expect(item_data[:data][:attributes][:name]).to be_a(String)
     end
 
-  #   describe 'sad path' do
-  #     it "can get one item by its id" do   
-  #       get "/api/v1/items/9999111"
-    
-  #       item_data = JSON.parse(response.body, symbolize_names: true)
-  #       expect(response.status).to eq(404)
-  #     end
-  # end
-
   it "can create a new item" do
     merchant = create(:merchant)
 
@@ -87,8 +78,7 @@ describe "Items API" do
     item_params = { name: "Pink Earrings" }
     headers = {"CONTENT_TYPE" => "application/json"}
     
-    # We include this header to make sure that these params are passed as JSON rather than as plain text
-    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+    put "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
     item = Item.find_by(id: id)
   
     expect(response).to be_successful
