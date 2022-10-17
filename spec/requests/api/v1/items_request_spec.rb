@@ -155,8 +155,20 @@ describe "Items API" do
   end
 
   it "can destroy an invoice if this was the only item on the invoice" do
+    item = create(:item)
+    invoice = create(:invoice)
+    invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item.id, quantity: 100, unit_price: 888)
 
+    expect(Item.count).to eq(1)
+    expect(Invoice.count).to eq(1)
+
+    delete "/api/v1/items/#{item.id}"
+  
+    expect(response).to be_successful
+    expect(response.status).to eq(204)
+    expect(response.body).to eq("")
+    expect(Item.count).to eq(0)
+    expect(Invoice.count).to eq(0)
+    expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
-
-
 end
