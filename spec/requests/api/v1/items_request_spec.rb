@@ -62,19 +62,22 @@ describe "Items API" do
                           unit_price: 333.99,
                           merchant_id: merchant.id
                         })
-    headers = {"CONTENT_TYPE" => "application/json"}
+    headers = {"Content-Type" => "application/json"}
 
     post "/api/v1/items", headers: headers, params: JSON.generate(item: new_item_params)
     created_item = Item.last
 
     expect(response).to be_successful
+    # expect(response.status).to eq(201) // TODO check on this
+
     expect(created_item.name).to eq(new_item_params[:name])
     expect(created_item.description).to eq(new_item_params[:description])
     expect(created_item.unit_price).to eq(new_item_params[:unit_price])
-    # expect(created_item.genre).to eq(new_item_params[:genre])
+#     // TODO: sad path where attribute types are not correct
+# // TODO: edge case where all attributes are missing
   end
 
-  xit "can update an existing item" do
+  it "can update an existing item" do
     id = create(:item).id
     create(:item)
     create(:item)
@@ -85,7 +88,7 @@ describe "Items API" do
     headers = {"CONTENT_TYPE" => "application/json"}
     
     # We include this header to make sure that these params are passed as JSON rather than as plain text
-    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({book: item_params})
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
     item = Item.find_by(id: id)
   
     expect(response).to be_successful
@@ -93,7 +96,7 @@ describe "Items API" do
     expect(item.name).to eq("Pink Earrings" )
   end
 
-  xit "can delete an item" do
+  it "can delete an item" do
     item = create(:item)
   
     expect(Item.count).to eq(1)
