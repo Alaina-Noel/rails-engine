@@ -68,12 +68,12 @@ describe "Items API" do
     created_item = Item.last
 
     expect(response).to be_successful
-    # expect(response.status).to eq(201) // TODO check on this
+    expect(response.status).to eq(201)
 
     expect(created_item.name).to eq(new_item_params[:name])
     expect(created_item.description).to eq(new_item_params[:description])
     expect(created_item.unit_price).to eq(new_item_params[:unit_price])
-#     // TODO: sad path where attribute types are not correct
+#  // TODO: sad path where attribute types are not correct
 # // TODO: edge case where all attributes are missing
   end
 
