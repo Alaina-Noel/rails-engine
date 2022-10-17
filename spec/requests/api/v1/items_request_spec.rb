@@ -52,4 +52,19 @@ describe "Items API" do
   #       expect(response.status).to eq(404)
   #     end
   # end
+
+  it "can create a new item" do
+    new_item_params = create(:item)
+    headers = {"CONTENT_TYPE" => "application/json"}
+  
+    post "/api/v1/items", headers: headers, params: JSON.generate(book: new_item_params)
+    created_item = Item.last
+  
+    expect(response).to be_successful
+    expect(created_item.title).to eq(new_item_params[:name])
+    expect(created_item.author).to eq(new_item_params[:description])
+    expect(created_item.summary).to eq(new_item_params[:unit_price])
+    # expect(created_item.genre).to eq(new_item_params[:genre])
+  end
+
 end
