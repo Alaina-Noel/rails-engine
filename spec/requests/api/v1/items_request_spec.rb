@@ -43,4 +43,13 @@ describe "Items API" do
       expect(item_data[:data]).to have_key(:attributes)
       expect(item_data[:data][:attributes][:name]).to be_a(String)
     end
+
+    describe 'sad path' do
+      it "can get one item by its id" do     
+        get "/api/v1/items/#{id}"
+    
+        item_data = JSON.parse(response.body, symbolize_names: true)
+        require 'pry' ; binding.pry
+      end
+  end
 end
