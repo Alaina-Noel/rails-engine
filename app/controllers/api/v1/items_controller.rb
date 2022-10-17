@@ -8,11 +8,21 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def create
-    render json: ItemSerializer.new(Item.create(item_params))
+    item = Item.new(item_params)
+    if item.save
+      render json: ItemSerializer.new(item), status: 201
+    else
+      render status: 404
+    end
   end
 
   def update
-    render json: Item.update(params[:id], item_params) #if you don't include params[:id] it will find each every item
+    item = Item.find(params[:id])
+    if item.update(item_params)
+      render json: ItemSerializer.new(item)
+    else
+      render status: 404
+    end
   end
 
   def destroy
