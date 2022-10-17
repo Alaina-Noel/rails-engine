@@ -64,8 +64,49 @@ describe "Items API" do
     expect(created_item.name).to eq(new_item_params[:name])
     expect(created_item.description).to eq(new_item_params[:description])
     expect(created_item.unit_price).to eq(new_item_params[:unit_price])
-#  // TODO: sad path where attribute types are not correct
-# // TODO: edge case where all attributes are missing
+  end
+
+  describe 'sad path' do
+    it "can render a 404 error if the item can not be created because of an invalid datatype" do
+      merchant = create(:merchant)
+      create(:item)
+      new_item_params = ({
+                        name: 'Green Goblin Eyes',
+                        description: 'the googliest eyes',
+                        unit_price: "lots of money",
+                        merchant_id: merchant.id
+                      })
+
+      most_recent_item = Item.last
+
+      headers = {"Content-Type" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: new_item_params)
+      created_item = Item.last
+
+      expect(response.status).to eq(404)
+      expect(Item.last).to eq(most_recent_item)
+    end
+
+    it "edge case: it can render a 404 error if all attributes are missing" do
+      merchant = create(:merchant)
+      create(:item)
+      most_recent_item = Item.last
+
+      new_item_params = ({
+                        name: '',
+                        description: '',
+                        unit_price: '',
+                        merchant_id: ''
+                      })
+      headers = {"Content-Type" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: new_item_params)
+
+      expect(response.status).to eq(404)
+      expect(Item.last).to eq(most_recent_item)
+      expect(Item.last.name).to_not eq('')
+    end
   end
 
   it "can update an existing item" do
@@ -84,6 +125,19 @@ describe "Items API" do
     expect(response).to be_successful
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq("Pink Earrings" )
+  end
+
+  describe 'sad path' do
+    it 'can render a 404 error if item is unsuccessfully updated' do
+      item = create(:item)
+  
+      item_params = { name: "" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+      
+      put "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+      expect(response.status).to eq(404)
+      expect(Item.last.name).to_not eq("")
+    end
   end
 
   it "can delete an item" do

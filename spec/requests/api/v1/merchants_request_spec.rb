@@ -40,4 +40,14 @@ describe "Merchants API" do
     expect(merchant_data[:data]).to have_key(:attributes)
     expect(merchant_data[:data][:attributes][:name]).to be_a(String)
   end
+
+  describe 'sad path' do
+    it "can return 404 if the merchant is not found" do 
+      get "/api/v1/merchants/999999999"
+      error_response = JSON.parse(response.body, symbolize_names: true)
+      expect(response.status).to eq(404)
+      expect(error_response).to have_key(:error)
+      expect(error_response[:error]).to eq("No merchant found")
+    end
+  end
 end
