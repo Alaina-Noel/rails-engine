@@ -86,7 +86,7 @@ describe "Merchants API" do
     expect(response.status).to eq(404)
   end
 
-  it "return a 404 and empty body if no match found for a search term" do
+  xit "return a 404 and empty body if no match found for a search term" do
     merchant1 = Merchant.create!(name: "Turing")
     merchant2 = Merchant.create!(name: "Ring World")
     merchant2 = Merchant.create!(name: "Rose Rings")
@@ -97,7 +97,7 @@ describe "Merchants API" do
     expect(response.body).to eq("")
   end
 
-  it "return all merchants which match a query param" do
+  xit "return all merchants which match a query param" do
     merchant1 = Merchant.create!(name: "Turing")
     merchant2 = Merchant.create!(name: "Ring World")
     merchant3 = Merchant.create!(name: "Rose Rings")

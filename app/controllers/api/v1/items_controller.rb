@@ -32,6 +32,14 @@ class Api::V1::ItemsController < ApplicationController
     Invoice.delete_empty_invoices
   end
 
+  def find
+    if params[:name].present? && !params[:name].empty?
+       render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
+    else
+      render status: 404
+    end
+  end
+
   private
   def item_params
     params.require(:item).permit(:name, :description, :unit_price, :merchant_id)

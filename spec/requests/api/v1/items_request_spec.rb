@@ -196,7 +196,7 @@ describe "Items API" do
     item4 = Item.create!(name: "Shoes", description: "Nice Shoes", unit_price: 8, merchant_id: merchant1.id)
     item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
 
-    get "/api/vi/items/find?name=ring"
+    get "/api/v1/items/find?name=ring"
     expect(response).to be_successful
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:data)
