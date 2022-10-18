@@ -158,7 +158,7 @@ describe "Items API" do
     item1 = create(:item)
     item2 = create(:item)
     invoice = create(:invoice)
-    invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888)
+    # invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888)  // TODO not sure if this is needed.
 
     expect{ delete "/api/v1/items/#{item1.id}" }.to change(Invoice, :count).by(-1)
 
@@ -167,6 +167,6 @@ describe "Items API" do
     expect(response.body).to eq("")
     expect(Item.count).to eq(1)
     expect(Invoice.count).to eq(0)
-    expect{Invoice.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    expect{Invoice.find(item1.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 end
