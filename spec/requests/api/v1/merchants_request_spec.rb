@@ -50,4 +50,12 @@ describe "Merchants API" do
       expect(error_response[:error]).to eq("No merchant found")
     end
   end
+
+  xit "can display all items associated with a specified merchant " do
+
+  end
+
+  xit "can display a 404 if a merchant has no items " do
+
+  end
 end
