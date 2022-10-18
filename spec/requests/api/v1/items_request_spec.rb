@@ -181,7 +181,7 @@ describe "Items API" do
     expect(merchant_info[:data][:attributes][:name]).to be_a(String)
   end
 
-  xit "can display a 404 if the merchant is not found" do
+  it "can display a 404 if the merchant is not found" do
     get "/api/v1/items/99999/merchant"
     expect(response.status).to eq(404)
   end
