@@ -85,4 +85,34 @@ describe "Merchants API" do
     get "/api/v1/merchants/#{merchant.id}/items"
     expect(response.status).to eq(404)
   end
+
+  it "return a 404 and empty body if no match found for a search term" do
+    merchant1 = Merchant.create!(name: "Turing")
+    merchant2 = Merchant.create!(name: "Ring World")
+    merchant2 = Merchant.create!(name: "Rose Rings")
+
+
+    get "/api/vi/merchants/find_all?name=xxx"
+    expect(response.status).to eq(404)
+    expect(response.body).to eq("")
+  end
+
+  it "return all merchants which match a query param" do
+    merchant1 = Merchant.create!(name: "Turing")
+    merchant2 = Merchant.create!(name: "Ring World")
+    merchant3 = Merchant.create!(name: "Rose Rings")
+    merchant4 = Merchant.create!(name: "XXQQ")
+
+    get "/api/vi/merchants/find_all?name=ring"
+    merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchant_data.count).to eq(3)
+
+    merchant_data[:data].each do |merchant_data|
+      expect(response).to be_successful
+      expect(merchant_data[:data]).to have_key(:id)
+      expect(merchant_data[:data][:id]).to be_a(String)
+      expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+    end
+  end
 end
