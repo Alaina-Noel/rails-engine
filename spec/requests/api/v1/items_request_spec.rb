@@ -144,12 +144,29 @@ describe "Items API" do
     item = create(:item)
   
     expect(Item.count).to eq(1)
-  
+    
     delete "/api/v1/items/#{item.id}"
   
     expect(response).to be_successful
+    expect(response.status).to eq(204)
+    expect(response.body).to eq("")
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
+  it "can destroy an invoice if this was the only item on the invoice" do
+    item1 = create(:item)
+    item2 = create(:item)
+    invoice = create(:invoice)
+    # invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888)  // TODO not sure if this is needed.
+
+    expect{ delete "/api/v1/items/#{item1.id}" }.to change(Invoice, :count).by(-1)
+
+    expect(response).to be_successful
+    expect(response.status).to eq(204)
+    expect(response.body).to eq("")
+    expect(Item.count).to eq(1)
+    expect(Invoice.count).to eq(0)
+    expect{Invoice.find(item1.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
 end
