@@ -204,7 +204,5 @@ describe "Items API" do
     expect(item_info[:data][:type]).to eq("item")
     expect(item_info[:data][:attributes][:name]).to be_a(String)
     expect(item_info[:data][:attributes][:name]).to eq(item1.name.to_s)
-
   end
-
 end
