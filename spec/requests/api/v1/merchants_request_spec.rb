@@ -50,4 +50,39 @@ describe "Merchants API" do
       expect(error_response[:error]).to eq("No merchant found")
     end
   end
+
+  it "can display all items associated with a specified merchant " do
+    merchant = create(:merchant)
+    item1 = Item.create!(name: "An Item", description: "I belong to a merchant", unit_price: 222, merchant_id: merchant.id)
+    item2 = Item.create!(name: "Another Item", description: "I also belong to a merchant", unit_price: 222,merchant_id: merchant.id) 
+    item3 = Item.create!(name: "And Another Item", description: "I belong to a merchant, too!",unit_price: 222, merchant_id: merchant.id)
+
+    get "/api/v1/merchants/#{merchant.id}/items"
+
+    expect(response).to be_successful
+
+    items_array = JSON.parse(response.body, symbolize_names: true)
+    expect(items_array[:data].count).to be(3)
+
+    items_array[:data].each do |item_data|
+      expect(item_data).to have_key(:id)
+      expect(item_data[:id]).to be_a(String)
+
+      expect(item_data).to have_key(:type)
+      expect(item_data[:type]).to be_a(String)
+      expect(item_data[:type]).to eq("item")
+
+      expect(item_data).to have_key(:attributes)
+      expect(item_data[:attributes]).to be_a(Hash)
+      expect(item_data[:attributes][:name]).to be_a(String)
+      expect(item_data[:attributes][:description]).to be_a(String)
+    end
+  end
+
+  it "can display a 404 if a merchant has no items " do
+    merchant = create(:merchant)
+    
+    get "/api/v1/merchants/#{merchant.id}/items"
+    expect(response.status).to eq(404)
+  end
 end
