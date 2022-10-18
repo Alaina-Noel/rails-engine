@@ -200,7 +200,7 @@ describe "Items API" do
     expect(response).to be_successful
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:data)
-    expect(item_info[:data][:id]).to eq(item1.merchant_id.to_s)
+    expect(item_info[:data][:id]).to eq(item1.id.to_s)
     expect(item_info[:data][:type]).to eq("item")
     expect(item_info[:data][:attributes][:name]).to be_a(String)
     expect(item_info[:data][:attributes][:name]).to eq(item1.name.to_s)
