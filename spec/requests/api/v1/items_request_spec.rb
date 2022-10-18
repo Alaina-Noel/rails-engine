@@ -154,7 +154,7 @@ describe "Items API" do
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
-  xit "can destroy an invoice if this was the only item on the invoice" do
+  it "can destroy an invoice if this was the only item on the invoice" do
     item1 = create(:item)
     invoice = create(:invoice)
     invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888) 
