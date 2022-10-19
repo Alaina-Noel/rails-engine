@@ -25,5 +25,17 @@ RSpec.describe Merchant, type: :model do
         expect(Merchant.search_for_all("PPP")).to eq([])
       end
     end
+
+    describe '#find_matching_merchant(string)' do
+      it 'returns the first merchant alpha ordered where there is a partial match for the query param' do
+        merchant1 = Merchant.create!(name: "Turing")
+        merchant2 = Merchant.create!(name: "Ring World")
+        merchant3 = Merchant.create!(name: "Rose Rings")
+        merchant4 = Merchant.create!(name: "XXQQ")
+
+        expect(Merchant.find_matching_merchant("ring")).to eq(merchant2)
+      end
+    end
+
   end
 end

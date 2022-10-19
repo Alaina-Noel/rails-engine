@@ -156,15 +156,19 @@ describe "Items API" do
 
   it "can destroy an invoice if this was the only item on the invoice" do
     item1 = create(:item)
-    invoice = create(:invoice)
-    invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888) 
+    item2 = create(:item)
+    invoice1 = create(:invoice)
+    invoice2 = create(:invoice)
+    invoice_item1 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item1.id, quantity: 10, unit_price: 88) 
+    invoice_item2 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item1.id, quantity: 100, unit_price: 899)  
+    invoice_item3 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 300, unit_price: 999) 
 
     expect{ delete "/api/v1/items/#{item1.id}" }.to change(Invoice, :count).by(-1)
 
     expect(response).to be_successful
     expect(response.status).to eq(204)
     expect(response.body).to eq("")
-    expect(Invoice.count).to eq(0)
+    expect(Invoice.count).to eq(1)
     expect{Invoice.find(item1.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
@@ -206,7 +210,7 @@ describe "Items API" do
     expect(item_info[:data][:attributes][:name]).to eq(item1.name.to_s)
   end
 
-  xit "can display a 200 & null data body if no item matches the a search param" do
+  it "can display a 200 & null data body if no item matches the a search param" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
@@ -222,10 +226,10 @@ describe "Items API" do
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:data)
     expect(item_info[:data]).to be_an(Object)
-    expect(item_info[:data]).to eq([])
+    expect(item_info[:data]).to eq({})
   end
 
-  it "can display a 404 & null data body if user doesn't type a query param" do
+  it "can display a 400 & null data body if user doesn't type a query param" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
@@ -236,10 +240,28 @@ describe "Items API" do
     item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
 
     get "/api/v1/items/find?name="
-    expect(response.status).to eq(404)
+    expect(response.status).to eq(400)
 
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:error)
-    expect(item_info[:error]).to eq('You must enter a query param')
+    expect(item_info[:error]).to eq("Query params can't be empty")
+  end
+
+  it "can display a 400  & an informative error message if user doesn't use a query param category" do
+    merchant1 = create(:merchant)
+    merchant2 = create(:merchant)
+
+    item2 = Item.create!(name: "Bracelet", description: "Cool and nice", unit_price: 900, merchant_id: merchant2.id)
+    item3 = Item.create!(name: "Jewelery Earrings", description: "Pretty", unit_price: 800, merchant_id: merchant1.id)
+    item1 = Item.create!(name: "Earrings", description: "Pretty", unit_price: 888, merchant_id: merchant1.id)
+    item4 = Item.create!(name: "Shoes", description: "Nice Shoes", unit_price: 8, merchant_id: merchant1.id)
+    item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
+
+    get "/api/v1/items/find"
+    expect(response.status).to eq(400)
+
+    item_info = JSON.parse(response.body, symbolize_names: true)
+    expect(item_info).to have_key(:error)
+    expect(item_info[:error]).to eq("Query params can't be missing")
   end
 end

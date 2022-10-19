@@ -21,8 +21,9 @@ RSpec.describe Invoice, type: :model do
     invoice3 = Invoice.create!(status: "completed", customer_id: customer.id, merchant_id: merchant.id)
 
     invoice_item = InvoiceItem.create!(quantity: 4, unit_price: 75, item_id: item2.id, invoice_id: invoice1.id)
-
-    Invoice.delete_empty_invoices
+    
+    invoice_ids = [invoice1.id, invoice2.id, invoice3.id]
+    Invoice.delete_empty_invoices(invoice_ids)
 
     expect(Invoice.first).to eq(invoice1)
   end
