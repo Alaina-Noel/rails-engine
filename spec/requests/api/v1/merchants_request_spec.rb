@@ -93,8 +93,10 @@ describe "Merchants API" do
 
 
     get "/api/v1/merchants/find_all?name=xxx"
-    expect(response.status).to eq(404)
-    expect(response.body).to eq(" ")
+    merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(response.status).to eq(200) #change this to 400 once someone answers my question
+    expect(merchant_data[:data]).to eq([])
   end
 
   it "return all merchants which match a query param" do
