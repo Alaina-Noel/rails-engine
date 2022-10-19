@@ -6,7 +6,7 @@ class Invoice < ApplicationRecord
   has_many :items, through: :invoice_items
 
   def self.delete_empty_invoices(array_of_invoice_ids)
-    #Do this with activerecord
+    # Invoice.left_joins(:invoice_items).select("count(invoice_items) as inv_item_count").where(id: array_of_invoice_ids).group(:id).where(inv_item_count: 0)
     Invoice.find(array_of_invoice_ids).each do |invoice|
       if invoice.invoice_items.empty?
         invoice.delete
@@ -14,5 +14,3 @@ class Invoice < ApplicationRecord
     end
   end
 end
-
-#build a join where both things are true and it's empty and then delete it
