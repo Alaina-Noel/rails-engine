@@ -135,7 +135,7 @@ describe "Merchants API" do
     expect(merchant_data[:data][:attributes][:name]).to eq(merchant2.name.to_s)
   end
 
-  xit "returns a 200 and empty body if a the search param doesn't match any merchants" do
+  it "returns a 200 and empty body if a the search param doesn't match any merchants" do
     merchant1 = Merchant.create!(name: "Turing")
     merchant2 = Merchant.create!(name: "Hello World")
     merchant3 = Merchant.create!(name: "Cotton Candy")
@@ -147,5 +147,20 @@ describe "Merchants API" do
     expect(response.status).to eq(200)
     expect(merchant_data).to have_key(:data)
     expect(merchant_data[:data]).to eq({})
+  end
+
+  it "returns a 404 & error if the user doesn't type in a query param" do
+    merchant1 = Merchant.create!(name: "Turing")
+    merchant2 = Merchant.create!(name: "Hello World")
+    merchant3 = Merchant.create!(name: "Cotton Candy")
+    merchant4 = Merchant.create!(name: "XPPPP")
+
+    get "/api/v1/merchants/find?name="
+    merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(response.status).to eq(404)
+    expect(merchant_data).to have_key(:error)
+    expect(merchant_data).to_not have_key(:data)
+    expect(merchant_data[:error]).to eq('You must enter a query param')
   end
 end
