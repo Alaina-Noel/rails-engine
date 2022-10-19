@@ -156,15 +156,19 @@ describe "Items API" do
 
   it "can destroy an invoice if this was the only item on the invoice" do
     item1 = create(:item)
-    invoice = create(:invoice)
-    invoice_item = InvoiceItem.create!(invoice_id: invoice.id, item_id: item1.id, quantity: 100, unit_price: 888) 
+    item2 = create(:item)
+    invoice1 = create(:invoice)
+    invoice2 = create(:invoice)
+    invoice_item1 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item1.id, quantity: 10, unit_price: 88) 
+    invoice_item2 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item1.id, quantity: 100, unit_price: 899)  
+    invoice_item3 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 300, unit_price: 999) 
 
     expect{ delete "/api/v1/items/#{item1.id}" }.to change(Invoice, :count).by(-1)
 
     expect(response).to be_successful
     expect(response.status).to eq(204)
     expect(response.body).to eq("")
-    expect(Invoice.count).to eq(0)
+    expect(Invoice.count).to eq(1)
     expect{Invoice.find(item1.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
@@ -225,7 +229,7 @@ describe "Items API" do
     expect(item_info[:data]).to eq({})
   end
 
-  it "can display a 404 & null data body if user doesn't type a query param" do
+  it "can display a 400 & null data body if user doesn't type a query param" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
@@ -243,7 +247,7 @@ describe "Items API" do
     expect(item_info[:error]).to eq("Query params can't be empty")
   end
 
-  it "can display a 404 & an informative error message if user doesn't use a query param category" do
+  it "can display a 400  & an informative error message if user doesn't use a query param category" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
