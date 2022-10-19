@@ -33,10 +33,8 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find
-    if params[:name].present? && !params[:name].empty?
+    if params[:name].present?
        render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
-    else
-      render status: 404
     end
   end
 

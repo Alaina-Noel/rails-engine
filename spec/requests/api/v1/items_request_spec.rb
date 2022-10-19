@@ -181,12 +181,12 @@ describe "Items API" do
     expect(merchant_info[:data][:attributes][:name]).to be_a(String)
   end
 
-  it "can display a 404 if the merchant is not found" do
+  it "can display a 404 if seraching for a single item & no merchant is not found for that item" do
     get "/api/v1/items/99999/merchant"
     expect(response.status).to eq(404)
   end
 
-  it "can find one item which matches a search term" do
+  it "can find one item by name which matches a query param" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
@@ -204,5 +204,23 @@ describe "Items API" do
     expect(item_info[:data][:type]).to eq("item")
     expect(item_info[:data][:attributes][:name]).to be_a(String)
     expect(item_info[:data][:attributes][:name]).to eq(item1.name.to_s)
+  end
+
+  it "can display a 200 & null data body if no item matches the a search param" do
+    merchant1 = create(:merchant)
+    merchant2 = create(:merchant)
+
+    item2 = Item.create!(name: "Bracelet", description: "Cool and nice", unit_price: 900, merchant_id: merchant2.id)
+    item3 = Item.create!(name: "Jewelery Earrings", description: "Pretty", unit_price: 800, merchant_id: merchant1.id)
+    item1 = Item.create!(name: "Earrings", description: "Pretty", unit_price: 888, merchant_id: merchant1.id)
+    item4 = Item.create!(name: "Shoes", description: "Nice Shoes", unit_price: 8, merchant_id: merchant1.id)
+    item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
+
+    get "/api/v1/items/find?name=LLL"
+    expect(response.status).to eq(200)
+
+    item_info = JSON.parse(response.body, symbolize_names: true)
+    expect(item_info).to have_key(:data)
+    expect(item_info[:data]).to eq(nil)
   end
 end
