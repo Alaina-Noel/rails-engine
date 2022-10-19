@@ -36,7 +36,7 @@ class Api::V1::ItemsController < ApplicationController
     if params[:name].present?
       matching_item = Item.find_matching_item(params[:name])
       if matching_item.nil?
-        render json: ItemSerializer.new([])
+        render json: {data: {}} 
       else
        render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
       end

@@ -206,7 +206,7 @@ describe "Items API" do
     expect(item_info[:data][:attributes][:name]).to eq(item1.name.to_s)
   end
 
-  xit "can display a 200 & null data body if no item matches the a search param" do
+  it "can display a 200 & null data body if no item matches the a search param" do
     merchant1 = create(:merchant)
     merchant2 = create(:merchant)
 
@@ -222,7 +222,7 @@ describe "Items API" do
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:data)
     expect(item_info[:data]).to be_an(Object)
-    expect(item_info[:data]).to eq([])
+    expect(item_info[:data]).to eq({})
   end
 
   it "can display a 404 & null data body if user doesn't type a query param" do
