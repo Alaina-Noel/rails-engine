@@ -16,7 +16,7 @@ class Api::V1::MerchantsController < ApplicationController
     if !matching_merchants.empty?
       render json: MerchantSerializer.new(matching_merchants)
     else
-      render json: { error: 'No merchant found' }, status: 404
+      render status: 404
     end
   end
 end

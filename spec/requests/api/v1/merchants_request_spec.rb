@@ -94,7 +94,7 @@ describe "Merchants API" do
 
     get "/api/v1/merchants/find_all?name=xxx"
     expect(response.status).to eq(404)
-    expect(response.body).to eq("")
+    expect(response.body).to eq(" ")
   end
 
   it "return all merchants which match a query param" do
@@ -106,13 +106,13 @@ describe "Merchants API" do
     get "/api/v1/merchants/find_all?name=ring"
     merchant_data = JSON.parse(response.body, symbolize_names: true)
 
-    expect(merchant_data.count).to eq(3)
+    expect(merchant_data[:data].count).to eq(3)
 
-    merchant_data[:data].each do |merchant_data|
+    merchant_data[:data].each do |merchant_info|
       expect(response).to be_successful
-      expect(merchant_data[:data]).to have_key(:id)
-      expect(merchant_data[:data][:id]).to be_a(String)
-      expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+      expect(merchant_info).to have_key(:id)
+      expect(merchant_info[:id]).to be_a(String)
+      expect(merchant_info[:attributes][:name]).to be_a(String)
     end
   end
 end
