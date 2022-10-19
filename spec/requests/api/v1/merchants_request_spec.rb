@@ -110,6 +110,7 @@ describe "Merchants API" do
       merchant_data = JSON.parse(response.body, symbolize_names: true)
 
       expect(response.status).to eq(200) 
+      expect(merchant_data).to_not have_key(:error)
       expect(merchant_data[:data]).to eq([])
     end
 
@@ -127,6 +128,7 @@ describe "Merchants API" do
       merchant_data[:data].each do |merchant_info|
         expect(response).to be_successful
         expect(merchant_info).to have_key(:id)
+        #// TODO check matching ids to all have
         expect(merchant_info[:id]).to be_a(String)
         expect(merchant_info[:attributes][:name]).to be_a(String)
       end
@@ -160,10 +162,11 @@ describe "Merchants API" do
 
       expect(response.status).to eq(200)
       expect(merchant_data).to have_key(:data)
+      expect(merchant_data).to_not have_key(:error)
       expect(merchant_data[:data]).to eq({})
     end
 
-    it "returns a 404 & error if the user doesn't type in a query param" do
+    it "returns a 400 & error if the user doesn't type in a query param" do
       merchant1 = Merchant.create!(name: "Turing")
       merchant2 = Merchant.create!(name: "Hello World")
       merchant3 = Merchant.create!(name: "Cotton Candy")
@@ -172,7 +175,7 @@ describe "Merchants API" do
       get "/api/v1/merchants/find?name="
       merchant_data = JSON.parse(response.body, symbolize_names: true)
 
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
       expect(merchant_data).to have_key(:error)
       expect(merchant_data).to_not have_key(:data)
       expect(merchant_data[:error]).to eq('You must enter a query param')

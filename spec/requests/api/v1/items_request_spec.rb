@@ -236,10 +236,28 @@ describe "Items API" do
     item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
 
     get "/api/v1/items/find?name="
-    expect(response.status).to eq(404)
+    expect(response.status).to eq(400)
 
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:error)
-    expect(item_info[:error]).to eq('You must enter a query param')
+    expect(item_info[:error]).to eq("Query params can't be empty")
+  end
+
+  it "can display a 404 & an informative error message if user doesn't use a query param category" do
+    merchant1 = create(:merchant)
+    merchant2 = create(:merchant)
+
+    item2 = Item.create!(name: "Bracelet", description: "Cool and nice", unit_price: 900, merchant_id: merchant2.id)
+    item3 = Item.create!(name: "Jewelery Earrings", description: "Pretty", unit_price: 800, merchant_id: merchant1.id)
+    item1 = Item.create!(name: "Earrings", description: "Pretty", unit_price: 888, merchant_id: merchant1.id)
+    item4 = Item.create!(name: "Shoes", description: "Nice Shoes", unit_price: 8, merchant_id: merchant1.id)
+    item5 = Item.create!(name: "Plates", description: "plates are cool", unit_price: 88888, merchant_id: merchant2.id)
+
+    get "/api/v1/items/find"
+    expect(response.status).to eq(400)
+
+    item_info = JSON.parse(response.body, symbolize_names: true)
+    expect(item_info).to have_key(:error)
+    expect(item_info[:error]).to eq("Query params can't be missing")
   end
 end

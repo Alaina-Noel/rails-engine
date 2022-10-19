@@ -27,21 +27,25 @@ class Api::V1::ItemsController < ApplicationController
 
   def destroy 
     invoice_items = InvoiceItem.where(item_id: params[:id])
+    invoice_ids = invoice_items.pluck(:invoice_id)
+#store those ids in a variable
     invoice_items.delete_all
     render json: Item.delete(params[:id]), status: 204
-    Invoice.delete_empty_invoices
+    Invoice.delete_empty_invoices(invoice_ids)
   end
 
   def find
     if params[:name].present?
-      matching_item = Item.find_matching_item(params[:name])
+       matching_item = Item.find_matching_item(params[:name])
       if matching_item.nil?
         render json: {data: {}} 
       else
        render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
       end
+    elsif !params[:name].nil?
+      render json: { error: "Query params can't be empty" }, status: 400
     else
-      render json: { error: 'You must enter a query param' }, status: 404
+      render json: { error: "Query params can't be missing" }, status: 400
     end
   end
 

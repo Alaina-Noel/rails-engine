@@ -5,13 +5,14 @@ class Invoice < ApplicationRecord
   has_many :invoice_items, dependent: :destroy
   has_many :items, through: :invoice_items
 
-  def self.delete_empty_invoices
-    #refactor to a subset of Invoice to iterate over
+  def self.delete_empty_invoices(array_of_invoice_ids)
     #Do this with activerecord
-    Invoice.all.each do |invoice|
+    Invoice.find(array_of_invoice_ids).each do |invoice|
       if invoice.invoice_items.empty?
         invoice.delete
       end
     end
   end
 end
+
+#build a join where both things are true and it's empty and then delete it

@@ -4,7 +4,7 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def show
-    if Merchant.exists?(params[:id])
+    if Merchant.exists?(params[:id]) #Could assign params[:id] to a variable.
       render json: MerchantSerializer.new(Merchant.find(params[:id]))
     else
       render json: { error: 'No merchant found' }, status: 404
@@ -25,7 +25,7 @@ class Api::V1::MerchantsController < ApplicationController
        render json: MerchantSerializer.new(matching_merchant)
       end
     else
-      render json: { error: 'You must enter a query param' }, status: 404
+      render json: { error: 'You must enter a query param' }, status: 400
     end
   end
 
