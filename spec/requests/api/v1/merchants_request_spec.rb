@@ -117,4 +117,21 @@ describe "Merchants API" do
       expect(merchant_info[:attributes][:name]).to be_a(String)
     end
   end
+
+  it "return one merchant by name matching a query param" do
+    merchant1 = Merchant.create!(name: "Turing")
+    merchant2 = Merchant.create!(name: "Ring World")
+    merchant3 = Merchant.create!(name: "Rose Rings")
+    merchant4 = Merchant.create!(name: "XXQQ")
+
+    get "/api/v1/merchants/find?name=ring"
+    merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(merchant_data[:data].count).to eq(1)
+    expect(merchant_data).to have_key(:data)
+    expect(merchant_data[:data][:id]).to eq(merchant2.id.to_s)
+    expect(merchant_data[:data][:type]).to eq("merchant")
+    expect(merchant_data[:data][:attributes][:name]).to be_a(String)
+    expect(merchant_data[:data][:attributes][:name]).to eq(merchant2.name.to_s)
+  end
 end
