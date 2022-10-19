@@ -86,7 +86,7 @@ describe "Merchants API" do
     expect(response.status).to eq(404)
   end
 
-  it "return a 404 and empty body if no match found for a search term" do
+  it "return a 200 and empty body if no match found for a search term" do
     merchant1 = Merchant.create!(name: "Turing")
     merchant2 = Merchant.create!(name: "Ring World")
     merchant2 = Merchant.create!(name: "Rose Rings")
@@ -95,7 +95,7 @@ describe "Merchants API" do
     get "/api/v1/merchants/find_all?name=xxx"
     merchant_data = JSON.parse(response.body, symbolize_names: true)
 
-    expect(response.status).to eq(200) #change this to 400 once someone answers my question
+    expect(response.status).to eq(200) 
     expect(merchant_data[:data]).to eq([])
   end
 
@@ -127,11 +127,25 @@ describe "Merchants API" do
     get "/api/v1/merchants/find?name=ring"
     merchant_data = JSON.parse(response.body, symbolize_names: true)
 
-    expect(merchant_data[:data].count).to eq(1)
+    expect(merchant_data.count).to eq(1)
     expect(merchant_data).to have_key(:data)
     expect(merchant_data[:data][:id]).to eq(merchant2.id.to_s)
     expect(merchant_data[:data][:type]).to eq("merchant")
     expect(merchant_data[:data][:attributes][:name]).to be_a(String)
     expect(merchant_data[:data][:attributes][:name]).to eq(merchant2.name.to_s)
+  end
+
+  xit "returns a 200 and empty body if a the search param doesn't match any merchants" do
+    merchant1 = Merchant.create!(name: "Turing")
+    merchant2 = Merchant.create!(name: "Hello World")
+    merchant3 = Merchant.create!(name: "Cotton Candy")
+    merchant4 = Merchant.create!(name: "XPPPP")
+
+    get "/api/v1/merchants/find?name=LLLLL"
+    merchant_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(response.status).to eq(200)
+    expect(merchant_data).to have_key(:data)
+    expect(merchant_data[:data]).to eq({})
   end
 end

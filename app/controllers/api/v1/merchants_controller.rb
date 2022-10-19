@@ -12,20 +12,21 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find_all
-     render json: MerchantSerializer.new(matching_merchants)
+    matching_merchants = Merchant.search_for_all(params[:name])
+    render json: MerchantSerializer.new(matching_merchants)
   end
 
   def find
-    require 'pry' ; binding.pry
     if params[:name].present?
       matching_merchant = Merchant.find_matching_merchant(params[:name])
       if matching_merchant.nil?
         render json: {data: {}} 
       else
-       render json: ItemSerializer.new(matching_merchant)
+       render json: MerchantSerializer.new(matching_merchant)
       end
     else
       render json: { error: 'You must enter a query param' }, status: 404
     end
   end
+
 end
