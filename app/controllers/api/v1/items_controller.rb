@@ -32,6 +32,19 @@ class Api::V1::ItemsController < ApplicationController
     Invoice.delete_empty_invoices
   end
 
+  def find
+    if params[:name].present?
+      matching_item = Item.find_matching_item(params[:name])
+      if matching_item.nil?
+        render json: ItemSerializer.new([])
+      else
+       render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
+      end
+    else
+      render json: { error: 'You must enter a query param' }, status: 404
+    end
+  end
+
   private
   def item_params
     params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
