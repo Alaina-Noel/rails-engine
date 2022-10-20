@@ -127,7 +127,8 @@ describe "Items API" do
     expect(item.name).to eq("Pink Earrings" )
   end
 
-  describe 'sad path' do
+  describe 'sad path' do 
+    #//TODO make this bulkier with specificied error message
     it 'can render a 404 error if item is unsuccessfully updated' do
       item = create(:item)
   
@@ -153,6 +154,8 @@ describe "Items API" do
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
+
+  #//TODO delete an item that doesn't exist
 
   it "can destroy an invoice if this was the only item on the invoice" do
     item1 = create(:item)
@@ -183,6 +186,7 @@ describe "Items API" do
     expect(Invoice.count).to eq(2)
     expect{Invoice.find(item3.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
+  #//TODO same item on the invoice
 
   it "can return the single merchant associated with an item " do
     item1 = create(:item)

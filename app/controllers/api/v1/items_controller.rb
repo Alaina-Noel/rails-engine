@@ -4,6 +4,7 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def show
+    # //TODO write is item exists 404
     render json: ItemSerializer.new(Item.find(params[:id]))
   end
 
@@ -17,6 +18,7 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
+    # //TODO write is item exists 404
     item = Item.find(params[:id])
     if item.update(item_params)
       render json: ItemSerializer.new(item)
@@ -31,21 +33,6 @@ class Api::V1::ItemsController < ApplicationController
     invoice_items.delete_all
     render json: Item.delete(params[:id]), status: 204
     Invoice.delete_empty_invoices(invoice_ids)
-  end
-
-  def find
-    if params[:name].present?
-       matching_item = Item.find_matching_item(params[:name])
-      if matching_item.nil?
-        render json: {data: {}} 
-      else
-       render json: ItemSerializer.new(Item.find_matching_item(params[:name]))
-      end
-    elsif !params[:name].nil?
-      render json: { error: "Query params can't be empty" }, status: 400
-    else
-      render json: { error: "Query params can't be missing" }, status: 400
-    end
   end
 
 private
