@@ -203,7 +203,35 @@ describe "Items API" do
     expect(Invoice.count).to eq(2)
     expect{Invoice.find(item3.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
-  #//TODO same item on the invoice
+
+  describe 'edge case' do
+    it "can destroy an invoice if it has two of the same items on that invoice" do
+      item1 = create(:item)
+      item2 = create(:item)
+      item3 = create(:item)
+
+      invoice1 = create(:invoice)
+      invoice2 = create(:invoice)
+      invoice3 = create(:invoice)
+
+      invoice_item1 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item1.id, quantity: 10, unit_price: 88) 
+      invoice_item2 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item2.id, quantity: 100, unit_price: 899)  
+      invoice_item3 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item3.id, quantity: 300, unit_price: 999) 
+
+      invoice_item4 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 10, unit_price: 88) 
+      invoice_item5 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 100, unit_price: 88) #repeated item from line above 
+
+      invoice_item6 = InvoiceItem.create!(invoice_id: invoice3.id, item_id: item2.id, quantity: 10, unit_price: 88) #will be empty after we delete item 2
+
+      expect{ delete "/api/v1/items/#{item2.id}" }.to change(Invoice, :count).by(-2) #it used to be 3, now it should be 1
+
+      expect(response).to be_successful
+      expect(response.status).to eq(204)
+      expect(response.body).to eq("")
+      expect(Invoice.count).to eq(1)
+      expect{Invoice.find(item2.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 
   it "can return the single merchant associated with an item " do
     item1 = create(:item)
