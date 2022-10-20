@@ -26,23 +26,37 @@ describe "Items API" do
     end
   end
 
-    it "can get one item by its id" do 
+  it "can get one item by its id" do 
+    id = create(:item).id
+
+    get "/api/v1/items/#{id}"
+
+    item_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(response).to be_successful
+    expect(item_data[:data]).to have_key(:id)
+    expect(item_data[:data][:id]).to eq(id.to_s)
+  
+    expect(item_data[:data]).to have_key(:type)
+    expect(item_data[:data][:type]).to eq("item")
+  
+    expect(item_data[:data]).to have_key(:attributes)
+    expect(item_data[:data][:attributes][:name]).to be_a(String)
+  end
+
+  describe 'sad path' do
+    it "can throw a helpful error if the item we are searching for doesn't exist" do 
       id = create(:item).id
   
-      get "/api/v1/items/#{id}"
+      get "/api/v1/items/444"
   
-      item_data = JSON.parse(response.body, symbolize_names: true)
-  
-      expect(response).to be_successful
-      expect(item_data[:data]).to have_key(:id)
-      expect(item_data[:data][:id]).to eq(id.to_s)
-    
-      expect(item_data[:data]).to have_key(:type)
-      expect(item_data[:data][:type]).to eq("item")
-    
-      expect(item_data[:data]).to have_key(:attributes)
-      expect(item_data[:data][:attributes][:name]).to be_a(String)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+      expect(response.status).to eq(404)
+      expect(error_response).to have_key(:error)
+      expect(error_response).to_not have_key(:data)
+      expect(error_response[:error]).to eq("No item found")
     end
+  end
 
   it "can create a new item" do
     merchant = create(:merchant)
@@ -127,7 +141,7 @@ describe "Items API" do
     expect(item.name).to eq("Pink Earrings" )
   end
 
-  describe 'sad path' do
+  describe 'sad path' do 
     it 'can render a 404 error if item is unsuccessfully updated' do
       item = create(:item)
   
@@ -136,7 +150,23 @@ describe "Items API" do
       
       put "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
       expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('Item unsuccessfully updated' )
       expect(Item.last.name).to_not eq("")
+    end
+
+    it 'can render a 404 error if item is not found' do
+      item = create(:item)
+  
+      item_params = { name: "" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+      
+      put "/api/v1/items/90909", headers: headers, params: JSON.generate({item: item_params})
+      expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('No item found' )
     end
   end
 
@@ -152,6 +182,23 @@ describe "Items API" do
     expect(response.body).to eq("")
     expect(Item.count).to eq(0)
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  describe 'sad path' do
+    it "can throw an error if an item we are trying to delete doesn't exist" do
+      item = create(:item)
+    
+      expect(Item.count).to eq(1)
+      
+      delete "/api/v1/items/45"
+
+      expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq("That item doesn't exist")
+      expect(Item.count).to eq(1)
+      expect(Item.find(item.id)).to eq(item)
+    end
   end
 
   it "can destroy an invoice if this was the only item on the invoice" do
@@ -182,6 +229,35 @@ describe "Items API" do
     expect(response.body).to eq("")
     expect(Invoice.count).to eq(2)
     expect{Invoice.find(item3.id)}.to raise_error(ActiveRecord::RecordNotFound)
+  end
+
+  describe 'edge case' do
+    it "can destroy an invoice if it has two of the same items on that invoice" do
+      item1 = create(:item)
+      item2 = create(:item)
+      item3 = create(:item)
+
+      invoice1 = create(:invoice)
+      invoice2 = create(:invoice)
+      invoice3 = create(:invoice)
+
+      invoice_item1 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item1.id, quantity: 10, unit_price: 88) 
+      invoice_item2 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item2.id, quantity: 100, unit_price: 899)  
+      invoice_item3 = InvoiceItem.create!(invoice_id: invoice1.id, item_id: item3.id, quantity: 300, unit_price: 999) 
+
+      invoice_item4 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 10, unit_price: 88) 
+      invoice_item5 = InvoiceItem.create!(invoice_id: invoice2.id, item_id: item2.id, quantity: 100, unit_price: 88) #repeated item from line above 
+
+      invoice_item6 = InvoiceItem.create!(invoice_id: invoice3.id, item_id: item2.id, quantity: 10, unit_price: 88) #will be empty after we delete item 2
+
+      expect{ delete "/api/v1/items/#{item2.id}" }.to change(Invoice, :count).by(-2) #it used to be 3, now it should be 1
+
+      expect(response).to be_successful
+      expect(response.status).to eq(204)
+      expect(response.body).to eq("")
+      expect(Invoice.count).to eq(1)
+      expect{Invoice.find(item2.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   it "can return the single merchant associated with an item " do

@@ -1,4 +1,4 @@
-class Api::V1::ItemMerchantsController < ApplicationController
+class Api::V1::Items::MerchantsController < ApplicationController
 
   def index
     if Item.exists?(params[:item_id])
