@@ -41,7 +41,7 @@ class Api::V1::ItemsController < ApplicationController
       render json: Item.delete(params[:id]), status: 204
       Invoice.delete_empty_invoices(invoice_ids)
     else
-      render json: { error: 'No item found' }, status: 404
+      render json: { error: "That item doesn't exist" }, status: 404
     end
   end
 

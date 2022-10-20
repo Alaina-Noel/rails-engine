@@ -157,7 +157,22 @@ describe "Items API" do
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
-  #//TODO delete an item that doesn't exist
+  describe 'sad path' do
+    it "can throw an error if an item we are trying to delete doesn't exist" do
+      item = create(:item)
+    
+      expect(Item.count).to eq(1)
+      
+      delete "/api/v1/items/45"
+
+      expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq("That item doesn't exist")
+      expect(Item.count).to eq(1)
+      expect(Item.find(item.id)).to eq(item)
+    end
+  end
 
   it "can destroy an invoice if this was the only item on the invoice" do
     item1 = create(:item)
