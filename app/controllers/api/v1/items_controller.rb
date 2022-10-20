@@ -4,8 +4,11 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def show
-    # //TODO write is item exists 404
+    if Item.exists?(params[:id])
     render json: ItemSerializer.new(Item.find(params[:id]))
+    else
+      render json: { error: 'No item found' }, status: 404
+    end
   end
 
   def create
@@ -18,21 +21,28 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    # //TODO write is item exists 404
-    item = Item.find(params[:id])
-    if item.update(item_params)
-      render json: ItemSerializer.new(item)
+    if Item.exists?(params[:id])
+      item = Item.find(params[:id])
+      if item.update(item_params)
+        render json: ItemSerializer.new(item)
+      else
+        render json: { error: 'Item unsuccessfully updated' }, status: 404
+      end
     else
-      render status: 404
+      render json: { error: 'No item found' }, status: 404
     end
   end
 
-  def destroy 
-    invoice_items = InvoiceItem.where(item_id: params[:id])
-    invoice_ids = invoice_items.pluck(:invoice_id)
-    invoice_items.delete_all
-    render json: Item.delete(params[:id]), status: 204
-    Invoice.delete_empty_invoices(invoice_ids)
+  def destroy
+    if Item.exists?(params[:id])
+      invoice_items = InvoiceItem.where(item_id: params[:id])
+      invoice_ids = invoice_items.pluck(:invoice_id)
+      invoice_items.delete_all
+      render json: Item.delete(params[:id]), status: 204
+      Invoice.delete_empty_invoices(invoice_ids)
+    else
+      render json: { error: 'No item found' }, status: 404
+    end
   end
 
 private

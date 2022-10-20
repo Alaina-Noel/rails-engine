@@ -128,7 +128,6 @@ describe "Items API" do
   end
 
   describe 'sad path' do 
-    #//TODO make this bulkier with specificied error message
     it 'can render a 404 error if item is unsuccessfully updated' do
       item = create(:item)
   
@@ -137,6 +136,9 @@ describe "Items API" do
       
       put "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
       expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('Item unsuccessfully updated' )
       expect(Item.last.name).to_not eq("")
     end
   end
