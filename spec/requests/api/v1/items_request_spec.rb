@@ -26,23 +26,37 @@ describe "Items API" do
     end
   end
 
-    it "can get one item by its id" do 
+  it "can get one item by its id" do 
+    id = create(:item).id
+
+    get "/api/v1/items/#{id}"
+
+    item_data = JSON.parse(response.body, symbolize_names: true)
+
+    expect(response).to be_successful
+    expect(item_data[:data]).to have_key(:id)
+    expect(item_data[:data][:id]).to eq(id.to_s)
+  
+    expect(item_data[:data]).to have_key(:type)
+    expect(item_data[:data][:type]).to eq("item")
+  
+    expect(item_data[:data]).to have_key(:attributes)
+    expect(item_data[:data][:attributes][:name]).to be_a(String)
+  end
+
+  describe 'sad path' do
+    it "can throw a helpful error if the item we are searching for doesn't exist" do 
       id = create(:item).id
   
-      get "/api/v1/items/#{id}"
+      get "/api/v1/items/444"
   
-      item_data = JSON.parse(response.body, symbolize_names: true)
-  
-      expect(response).to be_successful
-      expect(item_data[:data]).to have_key(:id)
-      expect(item_data[:data][:id]).to eq(id.to_s)
-    
-      expect(item_data[:data]).to have_key(:type)
-      expect(item_data[:data][:type]).to eq("item")
-    
-      expect(item_data[:data]).to have_key(:attributes)
-      expect(item_data[:data][:attributes][:name]).to be_a(String)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+      expect(response.status).to eq(404)
+      expect(error_response).to have_key(:error)
+      expect(error_response).to_not have_key(:data)
+      expect(error_response[:error]).to eq("No item found")
     end
+  end
 
   it "can create a new item" do
     merchant = create(:merchant)
@@ -140,6 +154,19 @@ describe "Items API" do
 
       expect(error_response[:error]).to eq('Item unsuccessfully updated' )
       expect(Item.last.name).to_not eq("")
+    end
+
+    it 'can render a 404 error if item is not found' do
+      item = create(:item)
+  
+      item_params = { name: "" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+      
+      put "/api/v1/items/90909", headers: headers, params: JSON.generate({item: item_params})
+      expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('No item found' )
     end
   end
 
