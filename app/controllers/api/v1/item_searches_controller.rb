@@ -15,7 +15,6 @@ class Api::V1::ItemSearchesController < ApplicationController
 
   def serialize_item(item)
     return {data: {}} if item.nil?
-
     ItemSerializer.new(item)
   end
 
