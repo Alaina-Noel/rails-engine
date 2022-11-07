@@ -11,7 +11,7 @@ class Api::V1::ItemSearchesController < ApplicationController
     elsif !params[:name].nil?
       render json: { error: "Query params can't be empty" }, status: 400
     else
-      render json: { error: "Query params can't be missing" }, status: 400
+      render json: { error: "'name' is a required query parameter" }, status: 400
     end
   end
 
