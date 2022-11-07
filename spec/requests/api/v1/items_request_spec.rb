@@ -350,6 +350,6 @@ describe "Items API" do
 
     item_info = JSON.parse(response.body, symbolize_names: true)
     expect(item_info).to have_key(:error)
-    expect(item_info[:error]).to eq("Query params can't be missing")
+    expect(item_info[:error]).to eq("'name' is a required query parameter")
   end
 end
